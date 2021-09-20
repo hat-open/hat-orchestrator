@@ -58,9 +58,10 @@ async def test_returncode():
 
 async def test_write():
     process = await hat.orchestrator.process.create_process([
-        sys.executable, '-c', 'print(input())'])
+        sys.executable, '-c', 'print(input())'],
+        inherit_stdin=False)
 
-    process.write('abc\n')
+    process.write('abc')
     result = await process.readline()
     assert result == 'abc'
 

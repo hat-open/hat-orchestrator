@@ -42,7 +42,8 @@ Each component is configured with these parameters:
 
     * `stdin`
 
-        Optional data passed to component's standard input.
+        Optional data passed to component's standard input. If data exists,
+        standard input is closed after data is written.
 
     * `delay`
 
@@ -68,8 +69,8 @@ forcefully terminated by sending SIGKILL (or calling TerminateProcess on
 Windows).
 
 Each component's output is redirected to Orchestrator's output. Orchestrator's
-standard input is non deterministically forwarded to components which are
-reading from standard input.
+standard input is non deterministically forwarded to components without stdin
+data.
 
 
 Component states and actions

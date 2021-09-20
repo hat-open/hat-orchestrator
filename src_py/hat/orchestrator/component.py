@@ -196,6 +196,7 @@ class Component(aio.Resource):
     async def _start_process(self):
         process = await hat.orchestrator.process.create_process(
             args=self._args,
+            inherit_stdin=not self._stdin,
             sigint_timeout=self._sigint_timeout,
             sigkill_timeout=self._sigkill_timeout)
         if self._win32_job:

@@ -74,15 +74,17 @@ class Client(aio.Resource):
                                              'value': value}})
 
 
-def run_orchestrator_subprocess(conf, conf_folder_path):
-    conf_path = conf_folder_path / "orchestrator.yaml"
-    json.encode_file(conf, conf_path)
+def run_orchestrator_subprocess(conf):
     creationflags = (subprocess.CREATE_NEW_PROCESS_GROUP
                      if sys.platform == 'win32' else 0)
-    return psutil.Popen(
+    p = psutil.Popen(
         ['python', '-m', 'hat.orchestrator',
-         '--conf', str(conf_path)],
-        creationflags=creationflags)
+         '--conf', '-'],
+        creationflags=creationflags,
+        stdin=subprocess.PIPE)
+    p.stdin.write(json.encode(conf).encode('utf-8'))
+    p.stdin.close()
+    return p
 
 
 def stop_process(p, wait_timeout=5):
@@ -138,13 +140,12 @@ def conf(unused_tcp_port_factory):
 
 
 @pytest.fixture
-def run_orchestrator_factory(conf, tmp_path):
+def run_orchestrator_factory(conf):
     processes = []
 
     def run_orchestrator(components):
         process = run_orchestrator_subprocess(
-            conf=dict(conf, components=components),
-            conf_folder_path=tmp_path)
+            conf=dict(conf, components=components))
         processes.append(process)
         return process
 
@@ -156,14 +157,13 @@ def run_orchestrator_factory(conf, tmp_path):
 
 @pytest.fixture
 @pytest.mark.asyncio
-async def run_orchestrator_ui_client_factory(conf, tmp_path):
+async def run_orchestrator_ui_client_factory(conf):
     processes = []
     clients = []
 
     async def run_orchestrator_ui_client(components):
         process = run_orchestrator_subprocess(
-            conf=dict(conf, components=components),
-            conf_folder_path=tmp_path)
+            conf=dict(conf, components=components))
         processes.append(process)
         ui_url = urllib.parse.urlparse(conf['ui']['address'])
         wait_until(process_listens_on, process, ui_url.port)
