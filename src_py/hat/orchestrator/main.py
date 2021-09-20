@@ -36,18 +36,20 @@ json_schema_repo: json.SchemaRepository = json.SchemaRepository(
                    "$XDG_CONFIG_HOME/hat/orchestrator.{yaml|yml|json})")
 def main(conf: typing.Optional[Path]):
     """Orchestrator"""
-    aio.init_asyncio()
-
     if not conf:
         for suffix in ('.yaml', '.yml', '.json'):
             conf = (user_conf_dir / 'orchestrator').with_suffix(suffix)
             if conf.exists():
                 break
     conf = json.decode_file(conf)
+    sync_main(conf)
+
+
+def sync_main(conf: json.Data):
+    """Sync main"""
+    aio.init_asyncio()
     json_schema_repo.validate('hat-orchestrator://orchestrator.yaml#', conf)
-
     logging.config.dictConfig(conf['log'])
-
     with contextlib.suppress(asyncio.CancelledError):
         aio.run_asyncio(async_main(conf))
 
