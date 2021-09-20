@@ -40,6 +40,10 @@ Each component is configured with these parameters:
         Command line arguments (including binary name) used when starting
         component's process.
 
+    * `stdin`
+
+        Optional data passed to component's standard input.
+
     * `delay`
 
         Startup delay in seconds applied only upon first component startup.
@@ -48,6 +52,11 @@ Each component is configured with these parameters:
 
         If this property is set to true, Orchestrator will restart component's
         process as soon as it terminates.
+
+    * `auto_start`
+
+        If this property is set to false, Orchestrator will skip component
+        startup during orchestrator startup.
 
 Automatic revival of stopped component includes constant delay (0.5 seconds)
 which stops overly zealous repetitive spawning of constantly closing process.

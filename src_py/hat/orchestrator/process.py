@@ -24,6 +24,7 @@ async def create_process(args: typing.List[str],
 
     process._process = await asyncio.create_subprocess_exec(
         *args,
+        stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         creationflags=creationflags,
@@ -51,6 +52,10 @@ class Process(aio.Resource):
     def returncode(self) -> typing.Optional[int]:
         """Return code"""
         return self._process.returncode
+
+    def write(self, data: str):
+        """Write data to stdin"""
+        self._process.stdin.write(data.encode('utf-8'))
 
     async def readline(self) -> str:
         """Read line from stdout"""

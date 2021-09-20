@@ -11,8 +11,7 @@ required:
     - ui
 properties:
     type:
-        enum:
-            - orchestrator
+        const: orchestrator
         description: configuration type identification
     version:
         type: string
@@ -33,12 +32,6 @@ definitions:
         required:
             - name
             - args
-            - delay
-            - revive
-            - start_delay
-            - create_timeout
-            - sigint_timeout
-            - sigkill_timeout
         properties:
             name:
                 title: Component name
@@ -51,18 +44,34 @@ definitions:
                 type: array
                 items:
                     type: string
+            stdin:
+                title: Standard input
+                description: |
+                    Initial string data available to component on
+                    standard input
+                type: string
+                default: ""
             delay:
                 title: Delay
                 description: |
                     Startup delay applied only for first component's
                     startup. If value is 0, timeout is ignored.
                 type: number
+                default: 0
             revive:
                 title: Revive
                 description: |
                     If this property is set to true, orchestrator will start
                     component's process if process is stopped.
                 type: boolean
+                default: false
+            auto_start:
+                title: Auto start
+                description: |
+                    If this property is set to true, orchestrator will start
+                    component's process on orchestrator startup.
+                type: boolean
+                default: true
             start_delay:
                 title: Start delay
                 description: |
@@ -98,5 +107,5 @@ definitions:
             address:
                 title: UI address
                 type: string
-                default: "http://localhost:23021"
+                default: "http://127.0.0.1:23021"
 ...

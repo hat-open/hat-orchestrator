@@ -38,10 +38,20 @@ class Component(aio.Resource):
     def __init__(self,
                  conf: json.Data,
                  win32_job: typing.Optional[hat.orchestrator.process.Win32Job] = None):  # NOQA
-        self._conf = conf
         self._win32_job = win32_job
-        self._status = Status.DELAYED if conf['delay'] else Status.STOPPED
-        self._revive = conf['revive']
+
+        self._name = conf['name']
+        self._args = conf['args']
+        self._stdin = conf.get('stdin', '')
+        self._delay = conf.get('delay', 0)
+        self._revive = conf.get('revive', False)
+        self._auto_start = conf.get('auto_start', True)
+        self._start_delay = conf.get('start_delay', 0.5)
+        self._create_timeout = conf.get('create_timeout', 2)
+        self._sigint_timeout = conf.get('sigint_timeout', 5)
+        self._sigkill_timeout = conf.get('sigkill_timeout', 5)
+
+        self._status = Status.DELAYED if self._delay else Status.STOPPED
         self._change_cbs = util.CallbackRegistry(
             exception_cb=lambda e: mlog.warning(
                 "change callback exception: %s", e, exc_info=e))
@@ -62,12 +72,12 @@ class Component(aio.Resource):
     @property
     def name(self) -> str:
         """Component name"""
-        return self._conf['name']
+        return self._name
 
     @property
     def delay(self) -> float:
         """Delay in seconds"""
-        return self._conf['delay']
+        return self._delay
 
     @property
     def revive(self) -> bool:
@@ -107,15 +117,15 @@ class Component(aio.Resource):
         process = None
 
         try:
-            started = True
-            if self.delay:
+            started = self._auto_start
+            if self._delay:
                 with contextlib.suppress(asyncio.TimeoutError):
                     started = await aio.wait_for(
-                        self._started_queue.get_until_empty(), self.delay)
+                        self._started_queue.get_until_empty(), self._delay)
             self._started_queue.put_nowait(started)
 
             while True:
-                await asyncio.sleep(self._conf['start_delay'])
+                await asyncio.sleep(self._start_delay)
 
                 started = False
                 while not (started or self.revive):
@@ -126,7 +136,7 @@ class Component(aio.Resource):
                 try:
                     self._set_status(Status.STARTING)
                     process = await aio.wait_for(self._start_process(),
-                                                 self._conf['create_timeout'])
+                                                 self._create_timeout)
                 except asyncio.CancelledError:
                     raise
                 except Exception as e:
@@ -185,12 +195,18 @@ class Component(aio.Resource):
 
     async def _start_process(self):
         process = await hat.orchestrator.process.create_process(
-            args=self._conf['args'],
-            sigint_timeout=self._conf['sigint_timeout'],
-            sigkill_timeout=self._conf['sigkill_timeout'])
+            args=self._args,
+            sigint_timeout=self._sigint_timeout,
+            sigkill_timeout=self._sigkill_timeout)
         if self._win32_job:
             self._win32_job.add_process(process)
         mlog.info("component %s (%s) started", self.name, process.pid)
+
+        if self._stdin:
+            mlog.info("writing stdin for component %s (%s)",
+                      self.name, process.pid)
+            process.write(self._stdin)
+
         return process
 
     async def _stop_process(self, process):
