@@ -13,7 +13,7 @@ pytestmark = pytest.mark.asyncio
 
 
 @pytest.fixture()
-def process_queue(event_loop, monkeypatch):
+async def process_queue(monkeypatch):
     queue = aio.Queue()
     create_subprocess_exec = asyncio.create_subprocess_exec
 
