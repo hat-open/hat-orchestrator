@@ -13,9 +13,6 @@ import hat.orchestrator.component
 import hat.orchestrator.ui
 
 
-pytestmark = pytest.mark.asyncio
-
-
 class Component(typing.NamedTuple):
     id: int
     name: str

@@ -9,9 +9,6 @@ from hat.orchestrator.component import (Status,
                                         Component)
 
 
-pytestmark = pytest.mark.asyncio
-
-
 @pytest.fixture()
 async def process_queue(monkeypatch):
     queue = aio.Queue()

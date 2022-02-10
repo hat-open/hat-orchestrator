@@ -7,9 +7,6 @@ import pytest
 import hat.orchestrator.process
 
 
-pytestmark = pytest.mark.asyncio
-
-
 async def test_create_process():
     process = await hat.orchestrator.process.create_process([
         sys.executable, '-c', 'import time; time.sleep(10)'])
