@@ -1,14 +1,14 @@
 """Orchestrator main"""
 
 from pathlib import Path
+import argparse
 import asyncio
 import contextlib
+import importlib.resources
 import logging.config
 import sys
-import typing
 
 import appdirs
-import click
 
 from hat import aio
 from hat import json
@@ -23,29 +23,39 @@ package_path: Path = Path(__file__).parent
 user_conf_dir: Path = Path(appdirs.user_config_dir('hat'))
 """User configuration directory"""
 
-json_schema_repo: json.SchemaRepository = json.SchemaRepository(
-    json.json_schema_repo,
-    json.SchemaRepository.from_json(package_path / 'json_schema_repo.json'))
-"""JSON schema repository"""
+with importlib.resources.path(__package__, 'json_schema_repo.json') as _path:
+    json_schema_repo: json.SchemaRepository = json.SchemaRepository(
+        json.json_schema_repo,
+        json.SchemaRepository.from_json(_path))
+    """JSON schema repository"""
 
 
-@click.command()
-@click.option('--conf', default=None, metavar='PATH', type=Path,
-              help="configuration defined by "
-                   "hat-orchestrator://orchestrator.yaml# (default "
-                   "$XDG_CONFIG_HOME/hat/orchestrator.{yaml|yml|json})")
-def main(conf: typing.Optional[Path]):
+def create_argument_parser() -> argparse.ArgumentParser:
+    """Create argument parser"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--conf', metavar='PATH', type=Path, default=None,
+        help="configuration defined by hat-orchestrator://orchestrator.yaml# "
+             "(default $XDG_CONFIG_HOME/hat/orchestrator.{yaml|yml|json})")
+    return parser
+
+
+def main():
     """Orchestrator"""
-    if not conf:
+    parser = create_argument_parser()
+    args = parser.parse_args()
+
+    conf_path = args.conf
+    if not conf_path:
         for suffix in ('.yaml', '.yml', '.json'):
-            conf = (user_conf_dir / 'orchestrator').with_suffix(suffix)
-            if conf.exists():
+            conf_path = (user_conf_dir / 'orchestrator').with_suffix(suffix)
+            if conf_path.exists():
                 break
 
-    if conf == Path('-'):
+    if conf_path == Path('-'):
         conf = json.decode_stream(sys.stdin)
     else:
-        conf = json.decode_file(conf)
+        conf = json.decode_file(conf_path)
 
     sync_main(conf)
 

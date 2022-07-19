@@ -1,7 +1,7 @@
 """UI web server"""
 
-from pathlib import Path
 import contextlib
+import importlib.resources
 import logging
 import typing
 import urllib
@@ -15,12 +15,6 @@ import hat.orchestrator.component
 
 mlog: logging.Logger = logging.getLogger(__name__)
 """Module logger"""
-
-package_path: Path = Path(__file__).parent
-"""Package file system path"""
-
-ui_path: Path = package_path / 'ui'
-"""UI file system path"""
 
 autoflush_delay: float = 0.2
 """Jugler autoflush delay"""
@@ -42,6 +36,11 @@ async def create(conf: json.Data,
     srv._async_group = aio.Group()
     srv._components = components
     srv._change_registry = util.CallbackRegistry()
+
+    exit_stack = contextlib.ExitStack()
+    ui_path = exit_stack.enter_context(
+        importlib.resources.path(__package__, 'ui'))
+    srv._async_group.spawn(aio.call_on_cancel, exit_stack.close)
 
     for component in components:
         srv._async_group.spawn(srv._component_loop, component)
