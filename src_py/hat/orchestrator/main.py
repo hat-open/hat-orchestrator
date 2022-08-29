@@ -62,14 +62,14 @@ def main():
 
 def sync_main(conf: json.Data):
     """Sync main"""
-    loop = aio.init_asyncio()
+    aio.init_asyncio()
 
     json_schema_repo.validate('hat-orchestrator://orchestrator.yaml#', conf)
 
     logging.config.dictConfig(conf['log'])
 
     with contextlib.suppress(asyncio.CancelledError):
-        aio.run_asyncio(async_main(conf), loop=loop)
+        aio.run_asyncio(async_main(conf))
 
 
 async def async_main(conf: json.Data):
