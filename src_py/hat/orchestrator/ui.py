@@ -40,18 +40,26 @@ async def create(conf: json.Data,
     exit_stack = contextlib.ExitStack()
     ui_path = exit_stack.enter_context(
         importlib.resources.path(__package__, 'ui'))
-    srv._async_group.spawn(aio.call_on_cancel, exit_stack.close)
+    srv.async_group.spawn(aio.call_on_cancel, exit_stack.close)
 
-    for component in components:
-        srv._async_group.spawn(srv._component_loop, component)
+    try:
+        for component in components:
+            srv.async_group.spawn(srv._component_loop, component)
 
-    addr = urllib.parse.urlparse(conf['address'])
-    juggler_srv = await juggler.listen(
-        addr.hostname, addr.port,
-        lambda conn: srv._async_group.spawn(srv._conn_loop, conn),
-        static_dir=ui_path,
-        autoflush_delay=autoflush_delay)
-    srv._async_group.spawn(aio.call_on_cancel, juggler_srv.async_close)
+        addr = urllib.parse.urlparse(conf['address'])
+        juggler_srv = await juggler.listen(
+            addr.hostname, addr.port,
+            lambda conn: srv.async_group.spawn(srv._conn_loop, conn),
+            static_dir=ui_path,
+            autoflush_delay=autoflush_delay)
+
+        srv.async_group.spawn(aio.call_on_cancel, juggler_srv.async_close)
+        srv.async_group.spawn(aio.call_on_done, juggler_srv.wait_closing(),
+                              srv.close)
+
+    except BaseException:
+        await aio.uncancellable(srv.async_close())
+        raise
 
     return srv
 
