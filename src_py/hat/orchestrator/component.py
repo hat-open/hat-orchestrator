@@ -154,16 +154,16 @@ class Component(aio.Resource):
                         self._async_group.spawn(self._read_stdout, process),
                         process.wait_closing)
 
-                    while started:
-                        started_future = self._async_group.spawn(
-                            self._started_queue.get_until_empty)
-                        await asyncio.wait([started_future, closing_future],
-                                           return_when=asyncio.FIRST_COMPLETED)
-                        if started_future.done():
+                    async with self._async_group.create_subgroup() as subgroup:
+                        while started:
+                            started_future = subgroup.spawn(
+                                self._started_queue.get_until_empty)
+                            await asyncio.wait(
+                                [started_future, closing_future],
+                                return_when=asyncio.FIRST_COMPLETED)
+                            if not started_future.done():
+                                break
                             started = started_future.result()
-                        else:
-                            started_future.cancel()
-                            break
 
                 finally:
                     self._set_status(Status.STOPPING)
