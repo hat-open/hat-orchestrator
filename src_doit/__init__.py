@@ -73,7 +73,8 @@ def task_check():
     """Check with flake8"""
     return {'actions': [(run_flake8, [src_py_dir]),
                         (run_flake8, [pytest_dir]),
-                        (run_eslint, [src_js_dir, ESLintConf.TS])]}
+                        (run_eslint, [src_js_dir, ESLintConf.TS])],
+            'task_dep': ['node_modules']}
 
 
 def task_test():
