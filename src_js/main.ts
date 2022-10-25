@@ -6,26 +6,38 @@ import * as juggler from '@hat-open/juggler';
 import '../src_scss/main.scss';
 
 
+type Status = 'STOPPED' | 'DELAYED' | 'STARTING' | 'RUNNING' | 'STOPPING';
+
+type Component = {
+    id: number,
+    name: string,
+    delay: number,
+    revive: boolean,
+    status: Status
+};
+
+
 const defaultState = {
     remote: null
 };
 
 
-let app = null;
+let app: juggler.Application | null = null;
 
 
 function main() {
     const root = document.body.appendChild(document.createElement('div'));
     r.init(root, defaultState, vt);
-    app = new juggler.Application(null, 'remote');
+    app = new juggler.Application('remote');
 }
 
 
-function vt() {
+function vt(): u.VNode {
     const remote = r.get('remote');
-    if (remote == null) return ['div'];
+    if (remote == null)
+        return ['div.orchestrator'];
 
-    const components = r.get('remote', 'components');
+    const components = r.get('remote', 'components') as Component[];
     return ['div.orchestrator',
         ['table',
             ['thead',
@@ -48,13 +60,14 @@ function vt() {
                                 checked: component.revive
                             },
                             on: {
-                                change: evt => app.send({
-                                    type: 'revive',
-                                    payload: {
+                                change: (evt: any) => {
+                                    if (!app)
+                                        return;
+                                    app.send('revive', {
                                         id: component.id,
                                         value: evt.target.checked
-                                    }
-                                })
+                                    });
+                                }
                             }}
                         ]
                     ],
@@ -67,10 +80,13 @@ function vt() {
                                     component.status, ['STOPPING', 'STOPPED'])
                             },
                             on: {
-                                click: () => app.send({
-                                    type: 'stop',
-                                    payload: { id: component.id }
-                                })
+                                click: () => {
+                                    if (!app)
+                                        return;
+                                    app.send('stop', {
+                                        id: component.id
+                                    });
+                                }
                             }},
                             ['span.fa.fa-times']
                         ],
@@ -82,10 +98,13 @@ function vt() {
                                     ['STARTING', 'RUNNING', 'STOPPING'])
                             },
                             on: {
-                                click: () => app.send({
-                                    type: 'start',
-                                    payload: { id: component.id }
-                                })
+                                click: () => {
+                                    if (!app)
+                                        return;
+                                    app.send('start', {
+                                        id: component.id
+                                    });
+                                }
                             }},
                             ['span.fa.fa-play']
                         ]
@@ -98,5 +117,5 @@ function vt() {
 
 
 window.addEventListener('load', main);
-window.r = r;
-window.u = u;
+(window as any).r = r;
+(window as any).u = u;

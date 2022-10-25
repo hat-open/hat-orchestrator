@@ -1,5 +1,3 @@
-.. _orchestrator:
-
 Orchestrator
 ============
 
@@ -160,122 +158,25 @@ stop each component. This functionality directly translates to calling of
 component's start, stop and change revive actions.
 
 
-Backend to frontend communication
-'''''''''''''''''''''''''''''''''
+Server state
+''''''''''''
 
-Backend contains all components description state which is shared between
-all frontends. When this state is changed, all frontends are notified of this
-change. Current components information is provided as server's juggler local
-data which is defined by JSON schema:
+Juggler server state is used for providing current state of all components.
 
-.. code:: yaml
-
-    "$schema": "http://json-schema.org/schema#"
-    type: object
-    required:
-        - components
-    properties:
-        components:
-            type: array
-            items:
-                type: object
-                required:
-                    - id
-                    - name
-                    - delay
-                    - revive
-                    - status
-                properties:
-                    id:
-                        type: integer
-                    name:
-                        type: string
-                    delay:
-                        type: number
-                    revive:
-                        type: boolean
-                    status:
-                        enum:
-                            - STOPPED
-                            - DELAYED
-                            - STARTING
-                            - RUNNING
-                            - STOPPING
-
-Once juggler connection between server and client is established, server will
-immediately set correct local data.
-
-Server doesn't send additional `MESSAGE` juggler messages.
+State structure is defined by JSON schema
+``hat-orchestrator://juggler.yaml#/definitions/state``.
 
 
-Frontend to backend communication
-'''''''''''''''''''''''''''''''''
+Request/response
+''''''''''''''''
 
-This communication is used primary for enabling user control of configured
-components. For each available user action, there exist single juggler's
-`MESSAGE` message.
+Juggler request/response communication is used primary for enabling user
+control of configured components.
 
-Frontend to backend juggler `MESSAGE` message JSON schema:
+Request data structures are defined by JSON schema
+``hat-orchestrator://juggler.yaml#/definitions/request``.
 
-.. code:: yaml
-
-    "$schema": "http://json-schema.org/schema#"
-    oneOf:
-        - "$ref": "#/definitions/start"
-        - "$ref": "#/definitions/stop"
-        - "$ref": "#/definitions/revive"
-    definitions:
-        start:
-            type: object
-            required:
-                - type
-                - payload
-            properties:
-                type:
-                    const: start
-                payload:
-                    type: object
-                    required:
-                        - id
-                    properties:
-                        id:
-                            type: integer
-        stop:
-            type: object
-            required:
-                - type
-                - payload
-            properties:
-                type:
-                    const: stop
-                payload:
-                    type: object
-                    required:
-                        - id
-                    properties:
-                        id:
-                            type: integer
-        revive:
-            type: object
-            required:
-                - type
-                - payload
-            properties:
-                type:
-                    const: revive
-                payload:
-                    type: object
-                    required:
-                        - id
-                        - value
-                    properties:
-                        id:
-                            type: integer
-                        value:
-                            type: boolean
-
-Client's juggler local data isn't changed during communication with server (it
-remains `null`).
+In case of successful request execution, response data is ``null``.
 
 
 Possible future improvements
@@ -307,3 +208,10 @@ Implementation
 Documentation is available as part of generated API reference:
 
     * `Python hat.orchestrator module <py_api/hat/orchestrator/index.html>`_
+
+
+Juggler definitions
+-------------------
+
+.. literalinclude:: ../schemas_json/juggler.yaml
+    :language: yaml

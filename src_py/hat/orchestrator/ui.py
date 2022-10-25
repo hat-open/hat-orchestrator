@@ -1,6 +1,7 @@
 """UI web server"""
 
 import contextlib
+import functools
 import importlib.resources
 import logging
 import typing
@@ -9,7 +10,6 @@ import urllib
 from hat import aio
 from hat import json
 from hat import juggler
-from hat import util
 import hat.orchestrator.component
 
 
@@ -28,37 +28,42 @@ async def create(conf: json.Data,
     Args:
         conf: configuration defined by
             ``hat://orchestrator.yaml#/definitions/ui``
-        path: web ui directory path
         components: components
 
     """
     srv = WebServer()
-    srv._async_group = aio.Group()
     srv._components = components
-    srv._change_registry = util.CallbackRegistry()
 
     exit_stack = contextlib.ExitStack()
-    ui_path = exit_stack.enter_context(
-        importlib.resources.path(__package__, 'ui'))
-    srv.async_group.spawn(aio.call_on_cancel, exit_stack.close)
-
     try:
-        for component in components:
-            srv.async_group.spawn(srv._component_loop, component)
+        ui_path = exit_stack.enter_context(
+            importlib.resources.path(__package__, 'ui'))
+
+        state = json.Storage({'components': []})
+        for component_id, component in enumerate(components):
+            update_state = functools.partial(
+                _update_component_state, state, component_id, component)
+            exit_stack.enter_context(
+                component.register_change_cb(update_state))
+            update_state()
 
         addr = urllib.parse.urlparse(conf['address'])
-        juggler_srv = await juggler.listen(
-            addr.hostname, addr.port,
-            lambda conn: srv.async_group.spawn(srv._conn_loop, conn),
-            static_dir=ui_path,
-            autoflush_delay=autoflush_delay)
+        srv._srv = await juggler.listen(host=addr.hostname,
+                                        port=addr.port,
+                                        request_cb=srv._on_request,
+                                        static_dir=ui_path,
+                                        autoflush_delay=autoflush_delay,
+                                        state=state)
 
-        srv.async_group.spawn(aio.call_on_cancel, juggler_srv.async_close)
-        srv.async_group.spawn(aio.call_on_done, juggler_srv.wait_closing(),
-                              srv.close)
+        try:
+            srv.async_group.spawn(aio.call_on_cancel, exit_stack.close)
+
+        except BaseException:
+            await aio.uncancellable(srv.async_close())
+            raise
 
     except BaseException:
-        await aio.uncancellable(srv.async_close())
+        exit_stack.close()
         raise
 
     return srv
@@ -74,50 +79,29 @@ class WebServer(aio.Resource):
     @property
     def async_group(self) -> aio.Group:
         """Async group"""
-        return self._async_group
+        return self._srv.async_group
 
-    def _set_data(self, conn):
-        data = {
-            'components': [{
-                'id': idx,
-                'name': component.name,
-                'delay': component.delay,
-                'revive': component.revive,
-                'status': component.status.name
-            } for idx, component in enumerate(self._components)]}
-        with contextlib.suppress(ConnectionError):
-            conn.set_local_data(data)
+    async def _on_request(self, conn, name, data):
+        if name == 'start':
+            component = self._components[data['id']]
+            component.start()
 
-    async def _component_loop(self, component):
-        with component.register_change_cb(self._change_registry.notify):
-            await component.wait_closed()
+        elif name == 'stop':
+            component = self._components[data['id']]
+            component.stop()
 
-    async def _conn_loop(self, conn):
-        try:
-            self._set_data(conn)
+        elif name == 'revive':
+            component = self._components[data['id']]
+            component.set_revive(bool(data['value']))
 
-            with self._change_registry.register(lambda: self._set_data(conn)):
-                while True:
-                    msg = await conn.receive()
-                    fn = {'start': self._process_msg_start,
-                          'stop': self._process_msg_stop,
-                          'revive': self._process_msg_revive}.get(msg['type'])
-                    if not fn:
-                        raise Exception('received invalid message type')
-                    fn(msg['payload'])
-        except ConnectionError:
-            pass
-        finally:
-            await conn.async_close()
+        else:
+            raise Exception('received invalid message type')
 
-    def _process_msg_start(self, payload):
-        component = self._components[payload['id']]
-        component.start()
 
-    def _process_msg_stop(self, payload):
-        component = self._components[payload['id']]
-        component.stop()
-
-    def _process_msg_revive(self, payload):
-        component = self._components[payload['id']]
-        component.set_revive(bool(payload['value']))
+def _update_component_state(state, component_id, component):
+    data = {'id': component_id,
+            'name': component.name,
+            'delay': component.delay,
+            'revive': component.revive,
+            'status': component.status.name}
+    state.set(['components', component_id], data)

@@ -1,0 +1,61 @@
+---
+"$schema": "http://json-schema.org/schema#"
+id: "hat-orchestrator://juggler.yaml#"
+definitions:
+    state:
+        type: object
+        required:
+            - components
+        properties:
+            components:
+                type: array
+                items:
+                    type: object
+                    required:
+                        - id
+                        - name
+                        - delay
+                        - revive
+                        - status
+                    properties:
+                        id:
+                            type: integer
+                        name:
+                            type: string
+                        delay:
+                            type: number
+                        revive:
+                            type: boolean
+                        status:
+                            enum:
+                                - STOPPED
+                                - DELAYED
+                                - STARTING
+                                - RUNNING
+                                - STOPPING
+    request:
+        start:
+            type: object
+            required:
+                - id
+            properties:
+                id:
+                    type: integer
+        stop:
+            type: object
+            required:
+                - id
+            properties:
+                id:
+                    type: integer
+        revive:
+            type: object
+            required:
+                - id
+                - value
+            properties:
+                id:
+                    type: integer
+                value:
+                    type: boolean
+...
