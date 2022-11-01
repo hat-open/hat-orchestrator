@@ -202,14 +202,6 @@ Possible future improvements
     * listening for control events
 
 
-Implementation
---------------
-
-Documentation is available as part of generated API reference:
-
-    * `Python hat.orchestrator module <py_api/hat/orchestrator/index.html>`_
-
-
 Juggler definitions
 -------------------
 

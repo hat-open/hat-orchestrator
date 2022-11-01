@@ -4,8 +4,7 @@ import tempfile
 
 from hat import json
 from hat.doit import common
-from hat.doit.docs import (build_sphinx,
-                           build_pdoc)
+from hat.doit.docs import build_sphinx
 from hat.doit.js import (ESLintConf,
                          run_eslint)
 from hat.doit.py import (build_wheel,
@@ -93,8 +92,6 @@ def task_docs():
                      dst_dir=build_docs_dir,
                      project='hat-orchestrator',
                      extensions=['sphinxcontrib.programoutput'])
-        build_pdoc(module='hat.orchestrator',
-                   dst_dir=build_docs_dir / 'py_api')
 
     return {'actions': [build],
             'task_dep': ['ui',
