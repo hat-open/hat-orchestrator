@@ -22,26 +22,26 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@hat-open/juggler@^0.6.4":
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/@hat-open/juggler/-/juggler-0.6.4.tgz#729bb3154d7be4cf195865d339cc50e3507501fc"
-  integrity sha512-ZzfNP3to9zWbKXHHD77jT4HyH3CNjkUt+6CRMwTtUw3iDnf+SXd2g9HBS827gJfrQUPHep2ANTxVhIr0ZUyb6g==
+"@hat-open/juggler@^0.6.5":
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/@hat-open/juggler/-/juggler-0.6.5.tgz#2e6daf4ef7e53e0dca45becc0827aec623ec7bd4"
+  integrity sha512-gQzB4bU6uqblz74jPfeQk+P0OFHIgdRaM7xyV8s/Ze8aWbGKJi2PxX6H+oA85Xlae1fw/jXDGohUCtz0uGXQ6Q==
   dependencies:
-    "@hat-open/renderer" "^0.6.2"
-    "@hat-open/util" "^0.6.6"
+    "@hat-open/renderer" "^0.6.3"
+    "@hat-open/util" "^0.6.7"
 
-"@hat-open/renderer@^0.6.2":
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/@hat-open/renderer/-/renderer-0.6.2.tgz#372d7f74b04fef7b487672da0cd6f7fd136c6b81"
-  integrity sha512-xRxMNhyBV0HmQcGBT3K2efq+HbfRmisRmIqMnxkiSu6NBTJIuQonUDGjIOhIakcZqPcIT/JJ6XizSWS4IpKbbQ==
+"@hat-open/renderer@^0.6.3":
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/@hat-open/renderer/-/renderer-0.6.3.tgz#0a20fbbff1fad8fbce651b7ff0b9bc1a3a1dfde6"
+  integrity sha512-zMlsqVUxGR0kt7AJDlH+BpclWPiETlYiJJHMPq1Yg7Hsmyvl0pDvQUskL++SijPZomx905hKauhSHiJxon7KwA==
   dependencies:
-    "@hat-open/util" "^0.6.6"
+    "@hat-open/util" "^0.6.7"
     snabbdom "^3.5.1"
 
-"@hat-open/util@^0.6.6":
-  version "0.6.6"
-  resolved "https://registry.yarnpkg.com/@hat-open/util/-/util-0.6.6.tgz#594ff547e74865d104f668b879287fc65dad6dd2"
-  integrity sha512-Imo57l3m3YBBQUTWw0cXMvHxAP75lG8RcZNSm2FoVYdL8ayJNWGAvwxzyA7GIbnlUWjeod/T+RU3sPuoOzLS1A==
+"@hat-open/util@^0.6.7":
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/@hat-open/util/-/util-0.6.7.tgz#0925b079b21f7b0250e53942e9316d0e606a491a"
+  integrity sha512-1CrzfjAO+T+9A4sevDwMeudq/Mm4OrKSA+3vtASsPaBea9QmknoacSxsw7xUTIofQbl3eSEmBfh38Zx0xI9Pgw==
 
 "@humanwhocodes/config-array@^0.11.6":
   version "0.11.6"

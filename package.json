@@ -1,9 +1,9 @@
 {
   "private": true,
   "devDependencies": {
-    "@hat-open/juggler": "^0.6.4",
-    "@hat-open/renderer": "^0.6.2",
-    "@hat-open/util": "^0.6.6",
+    "@hat-open/juggler": "^0.6.5",
+    "@hat-open/renderer": "^0.6.3",
+    "@hat-open/util": "^0.6.7",
     "@typescript-eslint/eslint-plugin": "^5.41.0",
     "@typescript-eslint/parser": "^5.41.0",
     "css-loader": "^6.7.1",

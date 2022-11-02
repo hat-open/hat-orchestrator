@@ -27,7 +27,7 @@ async def create(conf: json.Data,
 
     Args:
         conf: configuration defined by
-            ``hat://orchestrator.yaml#/definitions/ui``
+            ``hat-orchestrator://orchestrator.yaml#/definitions/ui``
         components: components
 
     """
