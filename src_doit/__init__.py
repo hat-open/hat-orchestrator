@@ -61,7 +61,7 @@ def task_build():
             description='Hat Orchestrator',
             url='https://github.com/hat-open/hat-orchestrator',
             license=common.License.APACHE2,
-            console_scripts=['hat-orchestrator = hat.orchestartor.main:main'])
+            console_scripts=['hat-orchestrator = hat.orchestrator.main:main'])
 
     return {'actions': [build],
             'task_dep': ['ui',
