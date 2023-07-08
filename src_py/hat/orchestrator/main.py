@@ -12,18 +12,17 @@ import appdirs
 
 from hat import aio
 from hat import json
+
 import hat.orchestrator.component
 import hat.orchestrator.process
 import hat.orchestrator.ui
 
 
-package_path: Path = Path(__file__).parent
-"""Package file system path"""
-
 user_conf_dir: Path = Path(appdirs.user_config_dir('hat'))
 """User configuration directory"""
 
-with importlib.resources.path(__package__, 'json_schema_repo.json') as _path:
+with importlib.resources.as_file(importlib.resources.files(__package__) /
+                                 'json_schema_repo.json') as _path:
     json_schema_repo: json.SchemaRepository = json.SchemaRepository(
         json.json_schema_repo,
         json.SchemaRepository.from_json(_path))

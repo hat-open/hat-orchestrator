@@ -4,7 +4,6 @@ import contextlib
 import functools
 import importlib.resources
 import logging
-import typing
 import urllib
 
 from hat import aio
@@ -21,7 +20,7 @@ autoflush_delay: float = 0.2
 
 
 async def create(conf: json.Data,
-                 components: typing.List[hat.orchestrator.component.Component]
+                 components: list[hat.orchestrator.component.Component]
                  ) -> 'WebServer':
     """Create ui for monitoring and controlling components
 
@@ -37,7 +36,8 @@ async def create(conf: json.Data,
     exit_stack = contextlib.ExitStack()
     try:
         ui_path = exit_stack.enter_context(
-            importlib.resources.path(__package__, 'ui'))
+            importlib.resources.as_file(
+                importlib.resources.files(__package__) / 'ui'))
 
         state = json.Storage({'components': []})
         for component_id, component in enumerate(components):

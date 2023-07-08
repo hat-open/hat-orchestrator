@@ -6,6 +6,7 @@ import pytest
 from hat import aio
 from hat import juggler
 from hat import util
+
 from hat.orchestrator.component import Status
 import hat.orchestrator.ui
 

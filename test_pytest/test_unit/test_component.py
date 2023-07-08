@@ -5,8 +5,8 @@ import sys
 import pytest
 
 from hat import aio
-from hat.orchestrator.component import (Status,
-                                        Component)
+
+from hat.orchestrator.component import Status, Component
 
 
 @pytest.fixture()

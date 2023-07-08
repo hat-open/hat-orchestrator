@@ -1,38 +1,69 @@
+.. _online documentation: https://hat-orchestrator.hat-open.com
+.. _git repository: https://github.com/hat-open/hat-orchestrator.git
+.. _PyPI project: https://pypi.org/project/hat-orchestrator
+.. _pydoit: https://pydoit.org
+.. _Hat Open: https://hat-open.com
+.. _Končar Digital: https://www.koncar.hr/en
+
+
 hat-orchestrator - Process orchestration
 ========================================
 
-This component is part of Hat Open project - open-source framework of tools and
-libraries for developing applications used for remote monitoring, control and
-management of intelligent electronic devices such as IoT devices, PLCs,
-industrial automation or home automation systems.
-
-Development of Hat Open and associated repositories is sponsored by
-`Končar Digital <https://www.koncar.hr>`_.
-
 For more information see:
 
-    * hat-orchestrator documentation - `<https://hat-orchestrator.hat-open.com>`_
-    * hat-orchestrator git repository - `<https://github.com/hat-open/hat-orchestrator.git>`_
-    * Hat Open homepage - `<https://hat-open.com>`_
+* `online documentation`_
+* `git repository`_
 
-.. warning::
 
-    This project is currently in state of active development. Features,
-    functionality and API are unstable.
+Runtime requirements
+--------------------
+
+* python >=3.10
 
 
 Install
 -------
 
-::
+`hat-orchestrator` is available as `PyPI project`_::
 
     $ pip install hat-orchestrator
+
+
+Build
+-----
+
+Build tool used for `hat-orchestrator` is `pydoit`_. It can be installed
+together with other python dependencies by running::
+
+    $ pip install -r requirements.pip.dev.txt
+
+For listing available doit tasks, use::
+
+    $ doit list
+
+Default task::
+
+    $ doit
+
+creates wheel package inside `build` directory.
+
+
+Hat Open
+--------
+
+`hat-orchestrator` is part of `Hat Open`_ project - open-source framework of
+tools and libraries for developing applications used for remote monitoring,
+control and management of intelligent electronic devices such as IoT devices,
+PLCs, industrial automation or home automation systems.
+
+Development of Hat Open and associated repositories is sponsored by
+`Končar Digital`_.
 
 
 License
 -------
 
-Copyright 2020-2022 Hat Open AUTHORS
+Copyright 2020-2023 Hat Open AUTHORS
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

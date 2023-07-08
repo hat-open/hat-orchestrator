@@ -6,12 +6,11 @@ import ctypes
 import signal
 import subprocess
 import sys
-import typing
 
 from hat import aio
 
 
-async def create_process(args: typing.List[str],
+async def create_process(args: list[str],
                          inherit_stdin: bool = True,
                          sigint_timeout: float = 5,
                          sigkill_timeout: float = 2
@@ -50,7 +49,7 @@ class Process(aio.Resource):
         return self._process.pid
 
     @property
-    def returncode(self) -> typing.Optional[int]:
+    def returncode(self) -> int | None:
         """Return code"""
         return self._process.returncode
 

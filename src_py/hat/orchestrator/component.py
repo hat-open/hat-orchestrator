@@ -10,6 +10,7 @@ import typing
 from hat import aio
 from hat import json
 from hat import util
+
 import hat.orchestrator.process
 
 
@@ -37,7 +38,7 @@ class Component(aio.Resource):
 
     def __init__(self,
                  conf: json.Data,
-                 win32_job: typing.Optional[hat.orchestrator.process.Win32Job] = None):  # NOQA
+                 win32_job: hat.orchestrator.process.Win32Job | None = None):
         self._win32_job = win32_job
 
         self._name = conf['name']

@@ -1,5 +1,5 @@
 -r requirements.pip.runtime.txt
 
-hat-doit ~= 0.12.2
-psutil >= 5.9.1
+hat-doit ~= 0.13.0
+psutil >= 5.9.5
 sphinxcontrib-programoutput >= 0.17
