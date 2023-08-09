@@ -7,8 +7,9 @@ from hat.doit import common
 from hat.doit.docs import build_sphinx
 from hat.doit.js import (ESLintConf,
                          run_eslint)
-from hat.doit.py import (build_wheel,
-                         run_pytest,
+from hat.doit.py import (get_task_build_wheel,
+                         get_task_run_pytest,
+                         get_task_run_pip_compile,
                          run_flake8)
 
 
@@ -17,9 +18,11 @@ __all__ = ['task_clean_all',
            'task_build',
            'task_check',
            'task_test',
+           'task_create_ui_dir',
            'task_docs',
            'task_ui',
-           'task_json_schema_repo']
+           'task_json_schema_repo',
+           'task_pip_compile']
 
 
 build_dir = Path('build')
@@ -52,20 +55,12 @@ def task_node_modules():
 
 def task_build():
     """Build"""
-
-    def build():
-        build_wheel(
-            src_dir=src_py_dir,
-            dst_dir=build_py_dir,
-            name='hat-orchestrator',
-            description='Hat Orchestrator',
-            url='https://github.com/hat-open/hat-orchestrator',
-            license=common.License.APACHE2,
-            console_scripts=['hat-orchestrator = hat.orchestrator.main:main'])
-
-    return {'actions': [build],
-            'task_dep': ['ui',
-                         'json_schema_repo']}
+    return get_task_build_wheel(
+        src_dir=src_py_dir,
+        build_dir=build_py_dir,
+        scripts={'hat-orchestrator': 'hat.orchestrator.main:main'},
+        task_dep=['ui',
+                  'json_schema_repo'])
 
 
 def task_check():
@@ -78,10 +73,13 @@ def task_check():
 
 def task_test():
     """Test"""
-    return {'actions': [(common.mkdir_p, [ui_dir]),
-                        lambda args: run_pytest(pytest_dir, *(args or []))],
-            'pos_arg': 'args',
-            'task_dep': ['json_schema_repo']}
+    return get_task_run_pytest(task_dep=['json_schema_repo',
+                                         'create_ui_dir'])
+
+
+def task_create_ui_dir():
+    """Create empty ui directory"""
+    return {'actions': [(common.mkdir_p, [ui_dir])]}
 
 
 def task_docs():
@@ -133,6 +131,11 @@ def task_json_schema_repo():
     return {'actions': [generate],
             'file_dep': src_paths,
             'targets': [json_schema_repo_path]}
+
+
+def task_pip_compile():
+    """Run pip-compile"""
+    return get_task_run_pip_compile()
 
 
 _webpack_conf = r"""

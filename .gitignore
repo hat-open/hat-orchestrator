@@ -3,5 +3,4 @@
 /node_modules
 /src_py/hat/orchestrator/ui
 /src_py/**/json_schema_repo.json
-/test_pytest/.coverage
 __pycache__
