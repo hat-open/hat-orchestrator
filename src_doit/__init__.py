@@ -9,7 +9,7 @@ from hat.doit.js import (ESLintConf,
                          run_eslint)
 from hat.doit.py import (get_task_build_wheel,
                          get_task_run_pytest,
-                         get_task_run_pip_compile,
+                         get_task_create_pip_requirements,
                          run_flake8)
 
 
@@ -22,7 +22,7 @@ __all__ = ['task_clean_all',
            'task_docs',
            'task_ui',
            'task_json_schema_repo',
-           'task_pip_compile']
+           'task_pip_requirements']
 
 
 build_dir = Path('build')
@@ -55,12 +55,10 @@ def task_node_modules():
 
 def task_build():
     """Build"""
-    return get_task_build_wheel(
-        src_dir=src_py_dir,
-        build_dir=build_py_dir,
-        scripts={'hat-orchestrator': 'hat.orchestrator.main:main'},
-        task_dep=['ui',
-                  'json_schema_repo'])
+    return get_task_build_wheel(src_dir=src_py_dir,
+                                build_dir=build_py_dir,
+                                task_dep=['ui',
+                                          'json_schema_repo'])
 
 
 def task_check():
@@ -133,9 +131,9 @@ def task_json_schema_repo():
             'targets': [json_schema_repo_path]}
 
 
-def task_pip_compile():
-    """Run pip-compile"""
-    return get_task_run_pip_compile()
+def task_pip_requirements():
+    """Create pip requirements"""
+    return get_task_create_pip_requirements()
 
 
 _webpack_conf = r"""

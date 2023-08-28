@@ -12,6 +12,13 @@ dependencies = [
     "hat-juggler ~= 0.6.11",
     "hat-util ~= 0.6.10",
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License"
+]
+
+[project.scripts]
+hat-orchestrator = "hat.orchestrator.main:main"
 
 [project.urls]
 Homepage = "http://hat-open.com"
@@ -20,13 +27,13 @@ Documentation = "http://hat-orchestrator.hat-open.com"
 
 [project.optional-dependencies]
 dev = [
-    "hat-doit ~=0.14.5",
+    "hat-doit ~=0.15.4",
     "psutil >= 5.9.5",
     "sphinxcontrib-programoutput >= 0.17",
 ]
 
 [build-system]
-requires = ["hat-doit ~=0.14.5"]
+requires = ["hat-doit ~=0.15.4"]
 build-backend = "hat.doit.pep517"
 
 [tool.pytest.ini_options]
