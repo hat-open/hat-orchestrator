@@ -35,7 +35,7 @@ def create_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         '--conf', metavar='PATH', type=Path, default=None,
         help="configuration defined by hat-orchestrator://orchestrator.yaml# "
-             "(default $XDG_CONFIG_HOME/hat/orchestrator.{yaml|yml|json})")
+             "(default $XDG_CONFIG_HOME/hat/orchestrator.{yaml|yml|toml|json})")  # NOQA
     return parser
 
 
@@ -43,19 +43,7 @@ def main():
     """Orchestrator"""
     parser = create_argument_parser()
     args = parser.parse_args()
-
-    conf_path = args.conf
-    if not conf_path:
-        for suffix in ('.yaml', '.yml', '.json'):
-            conf_path = (user_conf_dir / 'orchestrator').with_suffix(suffix)
-            if conf_path.exists():
-                break
-
-    if conf_path == Path('-'):
-        conf = json.decode_stream(sys.stdin)
-    else:
-        conf = json.decode_file(conf_path)
-
+    conf = json.read_conf(args.conf, user_conf_dir / 'orchestrator')
     sync_main(conf)
 
 
@@ -65,7 +53,9 @@ def sync_main(conf: json.Data):
 
     json_schema_repo.validate('hat-orchestrator://orchestrator.yaml#', conf)
 
-    logging.config.dictConfig(conf['log'])
+    log_conf = conf.get('log')
+    if log_conf:
+        logging.config.dictConfig(log_conf)
 
     with contextlib.suppress(asyncio.CancelledError):
         aio.run_asyncio(async_main(conf))
@@ -84,14 +74,16 @@ async def async_main(conf: json.Data):
             win32_job = None
 
         components = []
-        for component_conf in conf['components']:
+        for component_conf in conf.get('components', []):
             component = hat.orchestrator.component.Component(component_conf,
                                                              win32_job)
             _bind_resource(async_group, component)
             components.append(component)
 
-        ui = await hat.orchestrator.ui.create(conf['ui'], components)
-        _bind_resource(async_group, ui)
+        ui_conf = conf.get('ui')
+        if ui_conf:
+            ui = await hat.orchestrator.ui.create(ui_conf, components)
+            _bind_resource(async_group, ui)
 
         await async_group.wait_closing()
 

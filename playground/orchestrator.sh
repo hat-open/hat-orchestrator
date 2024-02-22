@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. $(dirname -- "$0")/env.sh
+PLAYGROUND_PATH=$(dirname "$(realpath "$0")")
+. $PLAYGROUND_PATH/env.sh
 
 LOG_LEVEL=DEBUG
 CONF_PATH=$DATA_PATH/orchestrator.yaml

@@ -4,11 +4,6 @@ id: "hat-orchestrator://orchestrator.yaml#"
 title: Orchestrator
 description: Orchestrators's configuration
 type: object
-required:
-    - type
-    - log
-    - components
-    - ui
 properties:
     type:
         const: orchestrator

@@ -1,11 +1,11 @@
 """Orchestrator's controlled component"""
 
+from collections.abc import Callable
 import asyncio
 import contextlib
 import datetime
 import enum
 import logging
-import typing
 
 from hat import aio
 from hat import json
@@ -86,7 +86,7 @@ class Component(aio.Resource):
         return self._revive
 
     def register_change_cb(self,
-                           cb: typing.Callable[[], None]
+                           cb: Callable[[], None]
                            ) -> util.RegisterCallbackHandle:
         """Register change callback
 

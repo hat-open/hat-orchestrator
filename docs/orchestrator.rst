@@ -29,33 +29,33 @@ terminates, all spawned child processes are also terminated.
 
 Each component is configured with these parameters:
 
-    * `name`
+* `name`
 
-        Name used for component identification by the Orchestrator.
+  Name used for component identification by the Orchestrator.
 
-    * `args`
+* `args`
 
-        Command line arguments (including binary name) used when starting
-        component's process.
+  Command line arguments (including binary name) used when starting
+  component's process.
 
-    * `stdin`
+* `stdin`
 
-        Optional data passed to component's standard input. If data exists,
-        standard input is closed after data is written.
+  Optional data passed to component's standard input. If data exists,
+  standard input is closed after data is written.
 
-    * `delay`
+* `delay`
 
-        Startup delay in seconds applied only upon first component startup.
+  Startup delay in seconds applied only upon first component startup.
 
-    * `revive`
+* `revive`
 
-        If this property is set to true, Orchestrator will restart component's
-        process as soon as it terminates.
+  If this property is set to true, Orchestrator will restart component's
+  process as soon as it terminates.
 
-    * `auto_start`
+* `auto_start`
 
-        If this property is set to false, Orchestrator will skip component
-        startup during orchestrator startup.
+  If this property is set to false, Orchestrator will skip component
+  startup during orchestrator startup.
 
 Automatic revival of stopped component includes constant delay (0.5 seconds)
 which stops overly zealous repetitive spawning of constantly closing process.
@@ -76,30 +76,30 @@ Component states and actions
 
 During it's lifetime, component can be in one of following states:
 
-    * STOPPED
+* STOPPED
 
-        State representing component without associated running process.
-        If startup delay is not set, this is initial state.
+  State representing component without associated running process.
+  If startup delay is not set, this is initial state.
 
-    * DELAYED
+* DELAYED
 
-        Temporary state which occurs only once if component is configured with
-        startup delay time. This state initial state and can not be entered
-        from any other state. Usual transition from this state is to STARTING
-        state, or to STOPPED state if stop action is issued.
+  Temporary state which occurs only once if component is configured with
+  startup delay time. This state initial state and can not be entered
+  from any other state. Usual transition from this state is to STARTING
+  state, or to STOPPED state if stop action is issued.
 
-    * STARTING
+* STARTING
 
-        State representing preparation and starting of new process.
+  State representing preparation and starting of new process.
 
-    * RUNNING
+* RUNNING
 
-        State of component with associated running process.
+  State of component with associated running process.
 
-    * STOPPING
+* STOPPING
 
-        State representing currently active termination procedure involving
-        'soft' and 'hard' process termination actions.
+  State representing currently active termination procedure involving
+  'soft' and 'hard' process termination actions.
 
 States STARTING and STOPPING are considered transitional states. Those states
 can not be interrupted by user actions. All actions which are registered during
@@ -109,35 +109,35 @@ and are not queued for sequential execution.
 
 Component implementation exposes this externally available actions:
 
-    * start
+* start
 
-        If current state of component is STOPPED or DELAYED, this action starts
-        component's startup procedure (it is expected that component will
-        transit to STARTING state). If current state is RUNNING, this action
-        has no effect.
+  If current state of component is STOPPED or DELAYED, this action starts
+  component's startup procedure (it is expected that component will
+  transit to STARTING state). If current state is RUNNING, this action
+  has no effect.
 
-    * stop
+* stop
 
-        If current state of component is RUNNING, this action stops component
-        execution by starting previously described termination procedure (it is
-        expected that component will transit to STOPPING state). If current
-        state is DELAYED, this component transits directly to STOPPED state.
-        For STOPPED state, this action is ignored.
+  If current state of component is RUNNING, this action stops component
+  execution by starting previously described termination procedure (it is
+  expected that component will transit to STOPPING state). If current
+  state is DELAYED, this component transits directly to STOPPED state.
+  For STOPPED state, this action is ignored.
 
-    * change revive
+* change revive
 
-        If current state of component is STOPPED and revive is set to true,
-        component's startup procedure is implicitly called.
+  If current state of component is STOPPED and revive is set to true,
+  component's startup procedure is implicitly called.
 
 Usual transition between states if not actions are performed is `DELAYED or
 STOPPED > STARTING > RUNNING > STOPPING > STOPPED > STARTING > ...` with
 exceptions:
 
-    * DELAYED is initial state if component delay is set. otherwise initial
-      state is STOPPED
-    * state STARTING can transit directly to STOPPED state if error occurs
-      during process startup procedure
-    * transition from STOPPED to STARTING occurs if `revive` flag is set
+* DELAYED is initial state if component delay is set. otherwise initial
+  state is STOPPED
+* state STARTING can transit directly to STOPPED state if error occurs
+  during process startup procedure
+* transition from STOPPED to STARTING occurs if `revive` flag is set
 
 
 Web user interface
