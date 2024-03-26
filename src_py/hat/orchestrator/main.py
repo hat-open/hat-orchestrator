@@ -82,7 +82,9 @@ async def async_main(conf: json.Data):
 
         ui_conf = conf.get('ui')
         if ui_conf:
-            ui = await hat.orchestrator.ui.create(ui_conf, components)
+            ui = await hat.orchestrator.ui.create(host=ui_conf['host'],
+                                                  port=ui_conf['port'],
+                                                  components=components)
             _bind_resource(async_group, ui)
 
         await async_group.wait_closing()

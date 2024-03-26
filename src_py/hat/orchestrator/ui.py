@@ -4,7 +4,6 @@ import contextlib
 import functools
 import importlib.resources
 import logging
-import urllib
 
 from hat import aio
 from hat import json
@@ -20,17 +19,11 @@ autoflush_delay: float = 0.2
 """Jugler autoflush delay"""
 
 
-async def create(conf: json.Data,
+async def create(host: str,
+                 port: int,
                  components: list[hat.orchestrator.component.Component]
                  ) -> 'WebServer':
-    """Create ui for monitoring and controlling components
-
-    Args:
-        conf: configuration defined by
-            ``hat-orchestrator://orchestrator.yaml#/$defs/ui``
-        components: components
-
-    """
+    """Create ui for monitoring and controlling components"""
     srv = WebServer()
     srv._components = components
 
@@ -48,9 +41,8 @@ async def create(conf: json.Data,
                 component.register_change_cb(update_state))
             update_state()
 
-        addr = urllib.parse.urlparse(conf['address'])
-        srv._srv = await juggler.listen(host=addr.hostname,
-                                        port=addr.port,
+        srv._srv = await juggler.listen(host=host,
+                                        port=port,
                                         request_cb=srv._on_request,
                                         static_dir=ui_path,
                                         autoflush_delay=autoflush_delay,

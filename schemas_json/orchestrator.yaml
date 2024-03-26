@@ -18,7 +18,17 @@ properties:
         items:
             $ref: "hat-orchestrator://orchestrator.yaml#/$defs/component"
     ui:
-        $ref: "hat-orchestrator://orchestrator.yaml#/$defs/ui"
+        type: object
+        required:
+            - host
+            - port
+        properties:
+            host:
+                type: string
+                default: '127.0.0.1'
+            port:
+                type: integer
+                default: 23021
 $defs:
     component:
         title: Component
@@ -92,14 +102,3 @@ $defs:
                     SIGKILL.
                 type: number
                 default: 2
-    ui:
-        title: Server
-        type: object
-        required:
-            - address
-        properties:
-            address:
-                title: UI address
-                type: string
-                default: "http://127.0.0.1:23021"
-...

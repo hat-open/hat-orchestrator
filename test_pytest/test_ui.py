@@ -76,17 +76,12 @@ def port():
 
 
 @pytest.fixture
-def conf(port):
-    return {'address': f'http://127.0.0.1:{port}'}
-
-
-@pytest.fixture
 async def connect(port):
     return functools.partial(juggler.connect, f'ws://127.0.0.1:{port}/ws')
 
 
-async def test_create(patch_autoflush_delay, conf):
-    ui = await hat.orchestrator.ui.create(conf, [])
+async def test_create(patch_autoflush_delay, port):
+    ui = await hat.orchestrator.ui.create('127.0.0.1', port, [])
     assert ui.is_open
 
     await ui.async_close()
@@ -95,11 +90,11 @@ async def test_create(patch_autoflush_delay, conf):
 
 @pytest.mark.parametrize("client_count", [1, 2, 5])
 @pytest.mark.parametrize("component_count", [0, 1, 2, 5])
-async def test_connect(patch_autoflush_delay, conf, connect, client_count,
+async def test_connect(patch_autoflush_delay, port, connect, client_count,
                        component_count):
     components = [Component(str(i))
                   for i in range(component_count)]
-    ui = await hat.orchestrator.ui.create(conf, components)
+    ui = await hat.orchestrator.ui.create('127.0.0.1', port, components)
 
     clients = collections.deque()
     for i in range(client_count):
@@ -127,10 +122,10 @@ async def test_connect(patch_autoflush_delay, conf, connect, client_count,
         await client.wait_closed()
 
 
-async def test_status(patch_autoflush_delay, conf, connect):
+async def test_status(patch_autoflush_delay, port, connect):
     state_queue = aio.Queue()
     component = Component('name')
-    ui = await hat.orchestrator.ui.create(conf, [component])
+    ui = await hat.orchestrator.ui.create('127.0.0.1', port, [component])
     client = await connect()
     client.state.register_change_cb(state_queue.put_nowait)
     if client.state.data is not None:
@@ -148,10 +143,10 @@ async def test_status(patch_autoflush_delay, conf, connect):
     await ui.async_close()
 
 
-async def test_revive(patch_autoflush_delay, conf, connect):
+async def test_revive(patch_autoflush_delay, port, connect):
     state_queue = aio.Queue()
     component = Component('name')
-    ui = await hat.orchestrator.ui.create(conf, [component])
+    ui = await hat.orchestrator.ui.create('127.0.0.1', port, [component])
     client = await connect()
     client.state.register_change_cb(state_queue.put_nowait)
     if client.state.data is not None:
@@ -170,9 +165,9 @@ async def test_revive(patch_autoflush_delay, conf, connect):
     await ui.async_close()
 
 
-async def test_start_stop(patch_autoflush_delay, conf, connect):
+async def test_start_stop(patch_autoflush_delay, port, connect):
     component = Component('name')
-    ui = await hat.orchestrator.ui.create(conf, [component])
+    ui = await hat.orchestrator.ui.create('127.0.0.1', port, [component])
     client = await connect()
 
     assert component.started_queue.empty()

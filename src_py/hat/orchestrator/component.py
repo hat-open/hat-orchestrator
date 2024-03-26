@@ -31,7 +31,7 @@ class Component(aio.Resource):
 
     Args:
         conf: configuration defined by
-            ``hat://orchestrator.yaml#/definitions/component``
+            ``hat-orchestrator://orchestrator.yaml#/$defs/component``
         win32_job: win32 job instance
 
     """
