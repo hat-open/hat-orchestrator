@@ -16,7 +16,7 @@ By installing Orchestrator from `hat-orchestrator` package, executable
 `hat-orchestrator` becomes available and can be used for starting this
 component.
 
-    .. program-output:: python -m hat.orchestrator --help
+.. program-output:: python -m hat.orchestrator --help
 
 
 Component orchestration
@@ -164,7 +164,7 @@ Server state
 Juggler server state is used for providing current state of all components.
 
 State structure is defined by JSON schema
-``hat-orchestrator://juggler.yaml#/definitions/state``.
+``hat-orchestrator://juggler.yaml#/$defs/state``.
 
 
 Request/response
@@ -174,7 +174,7 @@ Juggler request/response communication is used primary for enabling user
 control of configured components.
 
 Request data structures are defined by JSON schema
-``hat-orchestrator://juggler.yaml#/definitions/request``.
+``hat-orchestrator://juggler.yaml#/$defs/request``.
 
 In case of successful request execution, response data is ``null``.
 

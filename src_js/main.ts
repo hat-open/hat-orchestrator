@@ -3,9 +3,6 @@ import * as u from '@hat-open/util';
 import * as juggler from '@hat-open/juggler';
 
 
-import '../src_scss/main.scss';
-
-
 type Status = 'STOPPED' | 'DELAYED' | 'STARTING' | 'RUNNING' | 'STOPPING';
 
 type Component = {
@@ -88,7 +85,7 @@ function vt(): u.VNode {
                                     });
                                 }
                             }},
-                            ['span.fa.fa-times']
+                            icon('media-playback-stop')
                         ],
                         ['button', {
                             props: {
@@ -106,13 +103,22 @@ function vt(): u.VNode {
                                     });
                                 }
                             }},
-                            ['span.fa.fa-play']
+                            icon('media-playback-start')
                         ]
                     ]
                 ]
             )]
         ]
     ];
+}
+
+
+function icon(name: string): u.VNode {
+    return ['img.icon', {
+        props: {
+            src: `icons/${name}.svg`
+        }
+    }];
 }
 
 

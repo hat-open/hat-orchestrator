@@ -1,7 +1,6 @@
----
-"$schema": "http://json-schema.org/schema#"
-id: "hat-orchestrator://juggler.yaml#"
-definitions:
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "hat-orchestrator://juggler.yaml"
+$defs:
     state:
         type: object
         required:
@@ -58,4 +57,3 @@ definitions:
                     type: integer
                 value:
                     type: boolean
-...

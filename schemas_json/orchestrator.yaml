@@ -1,6 +1,5 @@
----
-"$schema": "http://json-schema.org/schema#"
-id: "hat-orchestrator://orchestrator.yaml#"
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "hat-orchestrator://orchestrator.yaml"
 title: Orchestrator
 description: Orchestrators's configuration
 type: object
@@ -12,15 +11,15 @@ properties:
         type: string
         description: component version
     log:
-        "$ref": "hat-json://logging.yaml#"
+        $ref: "hat-json://logging.yaml"
     components:
         title: Components
         type: array
         items:
-            "$ref": "hat-orchestrator://orchestrator.yaml#/definitions/component"
+            $ref: "hat-orchestrator://orchestrator.yaml#/$defs/component"
     ui:
-        "$ref": "hat-orchestrator://orchestrator.yaml#/definitions/ui"
-definitions:
+        $ref: "hat-orchestrator://orchestrator.yaml#/$defs/ui"
+$defs:
     component:
         title: Component
         type: object

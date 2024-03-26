@@ -51,7 +51,7 @@ def sync_main(conf: json.Data):
     """Sync main"""
     aio.init_asyncio()
 
-    json_schema_repo.validate('hat-orchestrator://orchestrator.yaml#', conf)
+    json_schema_repo.validate('hat-orchestrator://orchestrator.yaml', conf)
 
     log_conf = conf.get('log')
     if log_conf:

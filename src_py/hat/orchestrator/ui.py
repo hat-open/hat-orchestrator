@@ -9,6 +9,7 @@ import urllib
 from hat import aio
 from hat import json
 from hat import juggler
+
 import hat.orchestrator.component
 
 
@@ -26,7 +27,7 @@ async def create(conf: json.Data,
 
     Args:
         conf: configuration defined by
-            ``hat-orchestrator://orchestrator.yaml#/definitions/ui``
+            ``hat-orchestrator://orchestrator.yaml#/$defs/ui``
         components: components
 
     """

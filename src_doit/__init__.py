@@ -1,8 +1,8 @@
 from pathlib import Path
 import subprocess
-import tempfile
 
-from hat import json
+import doit
+
 from hat.doit import common
 from hat.doit.docs import build_sphinx
 from hat.doit.js import (ESLintConf,
@@ -20,7 +20,8 @@ __all__ = ['task_clean_all',
            'task_test',
            'task_create_ui_dir',
            'task_docs',
-           'task_ui',
+           'task_ts',
+           'task_static',
            'task_json_schema_repo',
            'task_pip_requirements']
 
@@ -50,14 +51,15 @@ def task_clean_all():
 
 def task_node_modules():
     """Install node_modules"""
-    return {'actions': ['yarn install --silent']}
+    return {'actions': ['npm install --silent --progress false']}
 
 
 def task_build():
     """Build"""
     return get_task_build_wheel(src_dir=src_py_dir,
                                 build_dir=build_py_dir,
-                                task_dep=['ui',
+                                task_dep=['ts',
+                                          'static',
                                           'json_schema_repo'])
 
 
@@ -90,89 +92,58 @@ def task_docs():
                      extensions=['sphinxcontrib.programoutput'])
 
     return {'actions': [build],
-            'task_dep': ['ui',
+            'task_dep': ['create_ui_dir',
                          'json_schema_repo']}
 
 
-def task_ui():
-    """Build UI"""
+def task_ts():
+    """Build TypeScript"""
 
     def build(args):
         args = args or []
-        common.rm_rf(ui_dir)
-        common.cp_r(src_static_dir, ui_dir)
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            config_path = tmpdir / 'webpack.config.js'
-            config_path.write_text(_webpack_conf.format(
-                src_path=(src_js_dir / 'main.ts').resolve(),
-                dst_dir=ui_dir.resolve()))
-            subprocess.run([str(node_modules_dir / '.bin/webpack'),
-                            '--config', str(config_path),
-                            *args],
-                           check=True)
+        subprocess.run(['npx', 'tsc', *args],
+                       check=True)
 
     return {'actions': [build],
             'pos_arg': 'args',
             'task_dep': ['node_modules']}
 
 
+@doit.create_after('node_modules')
+def task_static():
+    """Copy static files"""
+    src_dst_dirs = [(src_static_dir,
+                     ui_dir),
+                    (node_modules_dir / '@hat-open/juggler',
+                     ui_dir / 'script/@hat-open/juggler'),
+                    (node_modules_dir / '@hat-open/renderer',
+                     ui_dir / 'script/@hat-open/renderer'),
+                    (node_modules_dir / '@hat-open/util',
+                     ui_dir / 'script/@hat-open/util'),
+                    (node_modules_dir / 'snabbdom/build',
+                     ui_dir / 'script/snabbdom')]
+
+    for src_dir, dst_dir in src_dst_dirs:
+        for src_path in src_dir.rglob('*'):
+            if not src_path.is_file():
+                continue
+
+            dst_path = dst_dir / src_path.relative_to(src_dir)
+
+            yield {'name': str(dst_path),
+                   'actions': [(common.mkdir_p, [dst_path.parent]),
+                               (common.cp_r, [src_path, dst_path])],
+                   'file_dep': [src_path],
+                   'targets': [dst_path],
+                   'task_dep': ['node_modules']}
+
+
 def task_json_schema_repo():
     """Generate JSON Schema Repository"""
-    src_paths = list(schemas_json_dir.rglob('*.yaml'))
-
-    def generate():
-        repo = json.SchemaRepository(*src_paths)
-        data = repo.to_json()
-        json.encode_file(data, json_schema_repo_path, indent=None)
-
-    return {'actions': [generate],
-            'file_dep': src_paths,
-            'targets': [json_schema_repo_path]}
+    return common.get_task_json_schema_repo(schemas_json_dir.rglob('*.yaml'),
+                                            json_schema_repo_path)
 
 
 def task_pip_requirements():
     """Create pip requirements"""
     return get_task_create_pip_requirements()
-
-
-_webpack_conf = r"""
-module.exports = {{
-    mode: 'none',
-    entry: '{src_path}',
-    output: {{
-        filename: 'main.js',
-        path: '{dst_dir}'
-    }},
-    module: {{
-        rules: [
-            {{
-                test: /\.scss$/,
-                use: [
-                    "style-loader",
-                    {{
-                        loader: "css-loader",
-                        options: {{url: false}}
-                    }},
-                    {{
-                        loader: "sass-loader",
-                        options: {{sourceMap: true}}
-                    }}
-                ]
-            }},
-            {{
-                test: /\.ts$/,
-                use: 'ts-loader'
-            }}
-        ]
-    }},
-    resolve: {{
-        extensions: ['.ts', '.js']
-    }},
-    watchOptions: {{
-        ignored: /node_modules/
-    }},
-    devtool: 'source-map',
-    stats: 'errors-only'
-}};
-"""
