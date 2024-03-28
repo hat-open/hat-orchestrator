@@ -27,13 +27,13 @@ Documentation = "http://hat-orchestrator.hat-open.com"
 
 [project.optional-dependencies]
 dev = [
-    "hat-doit ~=0.15.11",
+    "hat-doit ~=0.15.12",
     "psutil >=5.9.5",
     "sphinxcontrib-programoutput >=0.17",
 ]
 
 [build-system]
-requires = ["hat-doit ~=0.15.11"]
+requires = ["hat-doit ~=0.15.12"]
 build-backend = "hat.doit.pep517"
 
 [tool.pytest.ini_options]
