@@ -1,6 +1,6 @@
 [project]
 name = "hat-orchestrator"
-version = "0.7.1"
+version = "0.7.2"
 description = "Hat orchestrator"
 readme = "README.rst"
 requires-python = ">=3.10"
@@ -8,9 +8,9 @@ license = {text = "Apache-2.0"}
 dependencies = [
     "appdirs ~=1.4.4",
     "hat-aio ~=0.7.9",
-    "hat-json ~=0.5.26",
-    "hat-juggler ~=0.6.17",
-    "hat-util ~=0.6.13",
+    "hat-json ~=0.5.27",
+    "hat-juggler ~=0.6.18",
+    "hat-util ~=0.6.16",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -27,13 +27,13 @@ Documentation = "http://hat-orchestrator.hat-open.com"
 
 [project.optional-dependencies]
 dev = [
-    "hat-doit ~=0.15.12",
+    "hat-doit ~=0.15.14",
     "psutil >=5.9.5",
     "sphinxcontrib-programoutput >=0.17",
 ]
 
 [build-system]
-requires = ["hat-doit ~=0.15.12"]
+requires = ["hat-doit ~=0.15.14"]
 build-backend = "hat.doit.pep517"
 
 [tool.pytest.ini_options]
