@@ -103,6 +103,35 @@ async def test_close_stdout():
     await process.async_close()
 
 
+async def test_without_capture_output():
+    process = await hat.orchestrator.process.create_process(
+        [sys.executable, '-c', 'print(123); import time; time.sleep(10)'],
+        capture_output=False)
+
+    with pytest.raises(ConnectionError):
+        await process.readline()
+
+    assert process.is_open
+
+    await process.async_close()
+
+
+async def test_long_lines():
+    process = await hat.orchestrator.process.create_process(
+        [sys.executable, '-c', 'for _ in range(10): print("x" * 1024 * 128)'])
+
+    counter = 0
+
+    with pytest.raises(ConnectionError):
+        while True:
+            await process.readline()
+            counter += 1
+
+    assert counter >= 10
+
+    await process.async_close()
+
+
 async def test_sigint(tmpdir):
     script_path = tmpdir / 'script.py'
     running_path = tmpdir / 'running'

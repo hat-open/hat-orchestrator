@@ -3,6 +3,7 @@
 import asyncio
 import contextlib
 import ctypes
+import ctypes.util
 import signal
 import subprocess
 import sys
@@ -12,8 +13,10 @@ from hat import aio
 
 async def create_process(args: list[str],
                          inherit_stdin: bool = True,
+                         capture_output: bool = True,
                          sigint_timeout: float = 5,
-                         sigkill_timeout: float = 2
+                         sigkill_timeout: float = 2,
+                         read_queue_size: int = 1024
                          ) -> 'Process':
     """Create process"""
     process = Process()
@@ -24,8 +27,8 @@ async def create_process(args: list[str],
 
     process._process = await asyncio.create_subprocess_exec(
         *args,
-        stdin=None if inherit_stdin else subprocess.PIPE,
-        stdout=subprocess.PIPE,
+        stdin=(None if inherit_stdin else subprocess.PIPE),
+        stdout=(subprocess.PIPE if capture_output else subprocess.DEVNULL),
         stderr=subprocess.STDOUT,
         creationflags=creationflags,
         preexec_fn=preexec_fn)
@@ -72,12 +75,18 @@ class Process(aio.Resource):
     async def _read_loop(self):
         try:
             try:
-                while True:
-                    line = await self._process.stdout.readline()
+                while self._process.stdout:
+                    try:
+                        line = await self._process.stdout.readline()
+
+                    except ValueError:
+                        line = b'[LINE TO LONG]'
+
                     if not line:
                         break
-                    line = line.decode('utf-8', 'ignore').rstrip()
-                    self._read_queue.put_nowait(line)
+
+                    line_str = line.decode('utf-8', 'ignore').rstrip()
+                    await self._read_queue.put(line_str)
 
             finally:
                 self._read_queue.close()
@@ -149,7 +158,8 @@ if sys.platform == 'linux':
 
     class LibC:
 
-        def __init__(self, path):
+        def __init__(self):
+            path = ctypes.util.find_library('c')
             self._lib = ctypes.cdll.LoadLibrary(path)
 
             self._lib.prctl.argtypes = [ctypes.c_int, ctypes.c_ulong,
@@ -163,7 +173,7 @@ if sys.platform == 'linux':
         def prctl(self, option, arg2=0, arg3=0, arg4=0, arg5=0):
             return self._lib.prctl(option, arg2, arg3, arg4, arg5)
 
-    libc = LibC('libc.so.6')
+    libc = LibC()
 
     def preexec_fn():
         libc.prctl(libc.PR_SET_PDEATHSIG, libc.SIGKILL)
@@ -211,7 +221,8 @@ elif sys.platform == 'win32':
 
     class Kernel32:
 
-        def __init__(self, path):
+        def __init__(self):
+            path = ctypes.util.find_library('Kernel32')
             self._lib = ctypes.windll.LoadLibrary(path)
 
             self._lib.CreateJobObjectA.argtypes = [
@@ -245,7 +256,7 @@ elif sys.platform == 'win32':
             self.OpenProcess = self._lib.OpenProcess
             self.CloseHandle = self._lib.CloseHandle
 
-    kernel32 = Kernel32('Kernel32.dll')
+    kernel32 = Kernel32()
 
     preexec_fn = None
 

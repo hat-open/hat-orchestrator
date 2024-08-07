@@ -44,6 +44,7 @@ class Component(aio.Resource):
         self._name = conf['name']
         self._args = conf['args']
         self._stdin = conf.get('stdin', '')
+        self._capture_output = conf.get('capture_output', True)
         self._delay = conf.get('delay', 0)
         self._revive = conf.get('revive', False)
         self._auto_start = conf.get('auto_start', True)
@@ -150,10 +151,16 @@ class Component(aio.Resource):
                     self._set_status(Status.RUNNING)
                     started = True
 
-                    closing_future = self._async_group.spawn(
-                        aio.call_on_done,
-                        self._async_group.spawn(self._read_stdout, process),
-                        process.wait_closing)
+                    if self._capture_output:
+                        closing_future = self._async_group.spawn(
+                            aio.call_on_done,
+                            self._async_group.spawn(self._read_stdout,
+                                                    process),
+                            process.wait_closing)
+
+                    else:
+                        closing_future = self._async_group.spawn(
+                            process.wait_closing)
 
                     async with self._async_group.create_subgroup() as subgroup:
                         while started:
@@ -198,6 +205,7 @@ class Component(aio.Resource):
         process = await hat.orchestrator.process.create_process(
             args=self._args,
             inherit_stdin=not self._stdin,
+            capture_output=self._capture_output,
             sigint_timeout=self._sigint_timeout,
             sigkill_timeout=self._sigkill_timeout)
         if self._win32_job:

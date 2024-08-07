@@ -55,6 +55,13 @@ $defs:
                     standard input
                 type: string
                 default: ""
+            capture_output:
+                title: Capture output
+                description: |
+                    If this property is set to true, orchestrator will read
+                    and log component's stdout/stderr.
+                type: boolean
+                default: True
             delay:
                 title: Delay
                 description: |
