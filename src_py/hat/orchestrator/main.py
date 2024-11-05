@@ -82,9 +82,12 @@ async def async_main(conf: json.Data):
 
         ui_conf = conf.get('ui')
         if ui_conf:
+            htpasswd = (Path(ui_conf['htpasswd']) if 'htpasswd' in ui_conf
+                        else None)
             ui = await hat.orchestrator.ui.create(host=ui_conf['host'],
                                                   port=ui_conf['port'],
-                                                  components=components)
+                                                  components=components,
+                                                  htpasswd=htpasswd)
             _bind_resource(async_group, ui)
 
         await async_group.wait_closing()

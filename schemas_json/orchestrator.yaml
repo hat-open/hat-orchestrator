@@ -29,6 +29,10 @@ properties:
             port:
                 type: integer
                 default: 23021
+            htpasswd:
+                type: string
+                description: |
+                    basic authentication users
 $defs:
     component:
         title: Component

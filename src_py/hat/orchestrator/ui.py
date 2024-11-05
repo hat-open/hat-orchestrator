@@ -1,5 +1,6 @@
 """UI web server"""
 
+from pathlib import Path
 import contextlib
 import functools
 import importlib.resources
@@ -21,7 +22,8 @@ autoflush_delay: float = 0.2
 
 async def create(host: str,
                  port: int,
-                 components: list[hat.orchestrator.component.Component]
+                 components: list[hat.orchestrator.component.Component],
+                 htpasswd: Path | None = None
                  ) -> 'WebServer':
     """Create ui for monitoring and controlling components"""
     srv = WebServer()
@@ -45,6 +47,7 @@ async def create(host: str,
                                         port=port,
                                         request_cb=srv._on_request,
                                         static_dir=ui_path,
+                                        htpasswd_file=htpasswd,
                                         autoflush_delay=autoflush_delay,
                                         state=state)
 
