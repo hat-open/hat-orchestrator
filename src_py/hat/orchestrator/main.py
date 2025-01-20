@@ -23,9 +23,9 @@ user_conf_dir: Path = Path(appdirs.user_config_dir('hat'))
 
 with importlib.resources.as_file(importlib.resources.files(__package__) /
                                  'json_schema_repo.json') as _path:
-    json_schema_repo: json.SchemaRepository = json.SchemaRepository(
+    json_schema_repo: json.SchemaRepository = json.merge_schema_repositories(
         json.json_schema_repo,
-        json.SchemaRepository.from_json(_path))
+        json.decode_file(_path))
     """JSON schema repository"""
 
 
@@ -34,7 +34,7 @@ def create_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--conf', metavar='PATH', type=Path, default=None,
-        help="configuration defined by hat-orchestrator://orchestrator.yaml# "
+        help="configuration defined by hat-orchestrator://orchestrator.yaml "
              "(default $XDG_CONFIG_HOME/hat/orchestrator.{yaml|yml|toml|json})")  # NOQA
     return parser
 
@@ -51,7 +51,8 @@ def sync_main(conf: json.Data):
     """Sync main"""
     aio.init_asyncio()
 
-    json_schema_repo.validate('hat-orchestrator://orchestrator.yaml', conf)
+    validator = json.DefaultSchemaValidator(json_schema_repo)
+    validator.validate('hat-orchestrator://orchestrator.yaml', conf)
 
     log_conf = conf.get('log')
     if log_conf:
